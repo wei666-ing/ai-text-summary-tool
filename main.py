@@ -1,7 +1,7 @@
 # =========================================
 # 数据管理小工具：读取/查询/修改/新增/删除/保存
 # =========================================
-
+import json
 def read_file_to_dict(file_path):
     """读取 key=value 格式的文本文件，返回字典"""
     data_dict = {}
@@ -89,11 +89,33 @@ def load_dict_from_file(file_path):
     except Exception as e:
         return False, f"读取失败：{e}"
 
+def save_json(data_dict, file_path):
+    """把字典保存为json文件"""
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data_dict, f, ensure_ascii=False, indent=2)
+        return True, "json保存成功"
+    except Exception as e:
+        return False, f"保存失败：{e}"
+
+
+def load_json(file_path):
+    """读取json文件，返回字典"""
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return True, data
+    except FileNotFoundError:
+        # 文件不存在返回空字典
+        return True, {}
+    except Exception as e:
+        return False, f"读取失败：{e}"
 
 def main_menu():
     """主菜单：整合全部功能"""
     # 启动时加载数据
-    status, data = load_dict_from_file("data.txt")
+    status, data = load_json("data.json")
+
     if not status:
         data = {}
 
@@ -126,7 +148,7 @@ def main_menu():
             ok, msg = delete_info(data, key)
             print(msg)
         elif choice == "4":
-            ok, msg = save_dict_to_file(data, "data.txt")
+            ok, msg = save_json(data, "data.json")
             print(msg)
         elif choice == "5":
             key = input("输入新增key：")

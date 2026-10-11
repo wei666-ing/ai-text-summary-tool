@@ -136,5 +136,45 @@ if status:
     print(loaded_data)
 else:
     print(loaded_data)
+def main_menu():
+    # 启动时加载数据
+    status, data = load_dict_from_file("data.txt")
+    if not status:
+        data = {}
+    while True:
+        print("\n===== 数据管理菜单 =====")
+        print("1. 查询数据")
+        print("2. 修改数据")
+        print("3. 删除数据")
+        print("4. 保存数据到文件")
+        print("0. 退出程序")
+        choice = input("请输入功能编号：")
+        if choice == "0":
+            print("程序退出")
+            break
+        elif choice == "1":
+            key = input("输入要查询的key：")
+            if key in data:
+                print(f"{key}: {data[key]}")
+            else:
+                print("该键不存在")
+        elif choice == "2":
+            key = input("输入要修改的key：")
+            new_val = input("输入新的值：")
+            ok, msg = modify_info(data, key, new_val)
+            print(msg)
+        elif choice == "3":
+            key = input("输入要删除的key：")
+            ok, msg = delete_info(data, key)
+            print(msg)
+        elif choice == "4":
+            ok, msg = save_dict_to_file(data, "data.txt")
+            print(msg)
+        else:
+            print("输入无效，请重新选择！")
+
+# 运行菜单
+if __name__ == "__main__":
+    main_menu()
 
 

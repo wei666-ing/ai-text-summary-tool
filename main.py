@@ -110,6 +110,14 @@ def load_json(file_path):
         return True, {}
     except Exception as e:
         return False, f"读取失败：{e}"
+    
+def show_all_data(data_dict):
+    if not data_dict:
+        return "暂无任何数据"
+    res = ""
+    for k, v in data_dict.items():
+        res += f"{k}: {v}\n"
+    return res
 
 def main_menu():
     """主菜单：整合全部功能"""
@@ -126,6 +134,7 @@ def main_menu():
         print("3. 删除数据")
         print("4. 保存数据到文件")
         print("5. 添加新数据")
+        print("6. 展示全部数据")
         print("0. 退出程序")
         choice = input("请输入功能编号：")
 
@@ -155,6 +164,8 @@ def main_menu():
             val = input("输入新增value：")
             ok, msg = add_info(data, key, val)
             print(msg)
+        elif choice == "6":
+            print(show_all_data(data))
         else:
             print("输入无效，请重新选择！")
 

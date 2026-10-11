@@ -116,5 +116,25 @@ def save_dict_to_file(data_dict, file_path):
 save_data = {"name":"小明","age":18,"city":"广州"}
 status, msg = save_dict_to_file(save_data, "data.txt")
 print(msg)
+def load_dict_from_file(file_path):
+    data_dict = {}
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                k, v = line.split(":", 1)
+                data_dict[k] = v
+        return True, data_dict
+    except Exception as e:
+        return False, f"读取失败：{e}"
+# 读取文件测试
+status, loaded_data = load_dict_from_file("data.txt")
+if status:
+    print("读取成功")
+    print(loaded_data)
+else:
+    print(loaded_data)
 
 

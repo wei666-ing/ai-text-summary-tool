@@ -77,3 +77,15 @@ if __name__ == "__main__":
     if res:
         print(get_value(res, "name"))
         print(get_value(res, "hobby"))
+def modify_info(data_dict, key, new_value):
+    if key in data_dict:
+        data_dict[key] = new_value
+        return True, "修改成功"
+    else:
+        return False, "键不存在，无法修改"
+info = {"name":"小明","age":18}
+status, msg = modify_info(info, "height", 180)
+print(msg)
+print(info)
+
+

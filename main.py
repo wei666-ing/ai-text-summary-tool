@@ -87,5 +87,21 @@ info = {"name":"小明","age":18}
 status, msg = modify_info(info, "height", 180)
 print(msg)
 print(info)
+def delete_info(data_dict, key):
+    if key in data_dict:
+        del data_dict[key]
+        return True, "删除成功"
+    else:
+        return False, "键不存在，无法删除"
+# 删除功能测试
+info_test = {"name":"小明","age":18,"city":"广州"}
+status, msg = delete_info(info_test, "city")
+print(msg)
+print(info_test)
+
+# 测试删除不存在的key
+status2, msg2 = delete_info(info_test, "height")
+print(msg2)
+print(info_test)
 
 

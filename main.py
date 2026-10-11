@@ -103,5 +103,18 @@ print(info_test)
 status2, msg2 = delete_info(info_test, "height")
 print(msg2)
 print(info_test)
+def save_dict_to_file(data_dict, file_path):
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            # 遍历字典，一行一条写入
+            for k, v in data_dict.items():
+                f.write(f"{k}:{v}\n")
+        return True, "保存成功"
+    except Exception as e:
+        return False, f"保存失败：{e}"
+# 保存文件测试
+save_data = {"name":"小明","age":18,"city":"广州"}
+status, msg = save_dict_to_file(save_data, "data.txt")
+print(msg)
 
 

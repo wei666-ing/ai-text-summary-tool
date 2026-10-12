@@ -148,22 +148,45 @@ def main_menu():
             else:
                 print("该键不存在")
         elif choice == "2":
-            key = input("输入要修改的key：")
-            new_val = input("输入新的值：")
-            ok, msg = modify_info(data, key, new_val)
-            print(msg)
+                key = input("输入要修改的key：").strip()
+                if not key:
+                    print("错误：key不能为空！")
+                elif key not in data:
+                    print(f"错误：key【{key}】不存在，无法修改")
+                else:
+                    new_val = input("输入新的值：").strip()
+                    if not new_val:
+                        print("错误：值不能为空！")
+                    else:
+                        # 调用修改函数
+                        data[key] = new_val
+                        print("修改成功！")
         elif choice == "3":
-            key = input("输入要删除的key：")
-            ok, msg = delete_info(data, key)
-            print(msg)
-        elif choice == "4":
+                        key = input("输入要删除的key：").strip()
+                        if not key:
+                            print("错误：key不能为空！")
+                        elif key not in data:
+                            print(f"错误：key【{key}】不存在，无法删除")
+                        else:
+                            del data[key]
+                            print("删除成功！")
+
+    elif choice == "4":
             ok, msg = save_json(data, "data.json")
             print(msg)
         elif choice == "5":
-            key = input("输入新增key：")
-            val = input("输入新增value：")
-            ok, msg = add_info(data, key, val)
-            print(msg)
+            key = input("输入新增key：").strip()
+            val = input("输入新增value：").strip()
+            # 校验1：判断是否为空
+            if not key or not val:
+                print("错误：key 和 value 都不能为空！")
+            # 校验2：判断key是否已经在字典里
+            elif key in data:
+                print(f"错误：key【{key}】已经存在，不能重复添加！")
+            else:
+                ok, msg = add_info(data, key, val)
+                print(msg)
+
         elif choice == "6":
             print(show_all_data(data))
         else:

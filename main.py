@@ -136,7 +136,11 @@ def main_menu():
         print("5. 添加新数据")
         print("6. 展示全部数据")
         print("0. 退出程序")
-        choice = input("请输入功能编号：")
+        choice = input("请输入功能编号：").strip()
+        valid_choices = ["0", "1", "2", "3", "4", "5", "6"]
+        if choice not in valid_choices:
+            print("请输入0~6之间有效的功能编号！")
+            continue
 
         if choice == "0":
             print("程序退出")
@@ -171,7 +175,7 @@ def main_menu():
                             del data[key]
                             print("删除成功！")
 
-    elif choice == "4":
+        elif choice == "4":
             ok, msg = save_json(data, "data.json")
             print(msg)
         elif choice == "5":

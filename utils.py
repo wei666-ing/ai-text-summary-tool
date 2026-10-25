@@ -138,3 +138,12 @@ def show_all_data(data_dict):
     for k, v in data_dict.items():
         res += f"{k}: {v}\n"
     return res
+
+def list_all_files(folder_path):
+    """列出文件夹里所有文件和子目录"""
+    try:
+        file_list = os.listdir(folder_path)
+        return True, file_list
+    except Exception as e:
+        return False, f"读取目录失败：{e}"
+

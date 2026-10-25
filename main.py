@@ -3,7 +3,7 @@
 # 工具函数都放在 utils.py，这里用 import 导入
 # =========================================
 import os
-from utils import save_json, load_json, add_info, modify_info, delete_info, show_all_data
+from utils import save_json, load_json, add_info, modify_info, delete_info, show_all_data, list_all_files
 
 
 def main_menu():
@@ -23,11 +23,11 @@ def main_menu():
         print("5. 添加新数据")
         print("6. 展示全部数据")
         print("7. 查看当前工作目录")
+        print("8. 查看目录下全部文件")
         print("0. 退出程序")
         choice = input("请输入功能编号：").strip()
-        valid_choices = ["0","1","2","3","4","5","6","7"]
-        if choice not in valid_choices:
-            print("请输入0~6之间有效的功能编号！")
+        if choice not in ["0", "1", "2", "3", "4", "5", "6", "7", "8"]:
+            print("请输入0~8之间有效的功能编号！")
             continue
 
         if choice == "0":
@@ -40,18 +40,13 @@ def main_menu():
             else:
                 print("该键不存在")
         elif choice == "2":
-                key = input("输入要修改的key：").strip()
-                new_val = input("输入新的值：").strip()
-                ok, msg = modify_info(data, key, new_val)
-                print(msg)
-
-
+            key = input("输入要修改的key：").strip()
+            new_val = input("输入新的值：").strip()
+            ok, msg = modify_info(data, key, new_val)
+            print(msg)
         elif choice == "3":
-
             key = input("输入要删除的key：").strip()
-
             ok, msg = delete_info(data, key)
-
             print(msg)
 
         elif choice == "4":
@@ -71,8 +66,17 @@ def main_menu():
             print(show_all_data(data))
         elif choice == "7":
             print("当前工作目录：", os.getcwd())
+        elif choice == "8":
+            ok, res = list_all_files(os.getcwd())
+            if ok:
+                print("当前目录内文件列表：")
+                for item in res:
+                    print("-", item)
+            else:
+                print(res)
         else:
             print("输入无效，请重新选择！")
+
 
 
 # 程序入口，只有直接运行这个py文件才会执行

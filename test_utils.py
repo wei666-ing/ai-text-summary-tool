@@ -77,6 +77,44 @@ def test_backup_file():
     os.remove(test_file + ".bak")
     print("✅ backup_file 测试通过")
 
+def test_datamanager():
+    from utils import DataManager
+    test_file = "test_dm.json"
+    dm = DataManager(test_file)
+    # 添加
+    ok, msg = dm.add("name", "小明")
+    assert ok == True
+    # 重复key拦截
+    ok, msg = dm.add("name", "小红")
+    assert ok == False
+    # 修改
+    ok, msg = dm.modify("name", "小李")
+    assert ok == True
+    assert dm.data["name"] == "小李"
+    # 查询
+    assert dm.query("name") == "小李"
+    # 搜索（字典推导式）
+    result = dm.search("李")
+    assert "name" in result
+    # 展示
+    assert "name: 小李" in dm.show_all()
+    # 删除
+    ok, msg = dm.delete("name")
+    assert ok == True
+    assert "name" not in dm.data
+    # 批量添加（*args）
+    succ, fail = dm.batch_add("a", "1", "b", "2")
+    assert len(succ) == 2
+    # 保存 + 自动备份
+    ok, msg = dm.save()
+    assert ok == True
+    assert os.path.exists(test_file)
+    # 清理
+    os.remove(test_file)
+    if os.path.exists(test_file + ".bak"):
+        os.remove(test_file + ".bak")
+    print("✅ DataManager 测试通过")
+
 if __name__ == "__main__":
     print("开始运行工具函数测试...\n")
     test_add_info()
@@ -84,4 +122,5 @@ if __name__ == "__main__":
     test_delete_info()
     test_json_save_load()
     test_backup_file()
+    test_datamanager()
     print("\n🎉 全部测试通过！")

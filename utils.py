@@ -67,6 +67,28 @@ def add_info(data_dict, key, value):
     return True, "新增记录成功"
 
 
+def batch_add(data_dict, *args):
+    """
+    批量新增数据
+    args 格式要求：key1,val1,key2,val2,key3,val3……成对传入
+    返回：成功信息列表、失败信息列表
+    """
+    success_list = []
+    fail_list = []
+    if len(args) % 2 != 0:
+        fail_list.append("参数数量不对，必须成对：key,value,key,value...")
+        return success_list, fail_list
+    for i in range(0, len(args), 2):
+        k = args[i]
+        v = args[i + 1]
+        ok, msg = add_info(data_dict, k, v)
+        if ok:
+            success_list.append(f"{k}:{v}")
+        else:
+            fail_list.append(f"{k}:{v} → {msg}")
+    return success_list, fail_list
+
+
 def delete_info(data_dict, key):
     """删除指定key"""
     if not key:
@@ -157,12 +179,15 @@ def list_all_files(folder_path):
     except Exception as e:
         return False, f"读取目录失败：{e}"
 
-def backup_file(file_path):
-    """备份文件，生成 .bak 副本"""
+def backup_file(file_path, **kwargs):
+    """备份文件
+    kwargs里面可以传 suffix 自定义备份后缀，默认 .bak
+    """
+    suffix = kwargs.get("suffix", ".bak")
     if not os.path.exists(file_path):
         return False, "源文件不存在，无需备份"
     try:
-        backup_path = file_path + ".bak"
+        backup_path = file_path + suffix
         shutil.copy(file_path, backup_path)
         return True, f"备份成功，副本：{backup_path}"
     except Exception as e:

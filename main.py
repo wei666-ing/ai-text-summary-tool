@@ -98,7 +98,6 @@ def save_json(data_dict, file_path):
     except Exception as e:
         return False, f"保存失败：{e}"
 
-
 def load_json(file_path):
     """读取json文件，返回字典"""
     try:
@@ -106,11 +105,16 @@ def load_json(file_path):
             data = json.load(f)
         return True, data
     except FileNotFoundError:
-        # 文件不存在返回空字典
+        print("提示：数据文件不存在，已自动新建空白数据")
+        return True, {}
+    except json.JSONDecodeError:
+        print("警告：文件JSON格式损坏，使用空白数据")
         return True, {}
     except Exception as e:
-        return False, f"读取失败：{e}"
-    
+        print(f"读取失败：{e}")
+        return False, {}
+
+
 def show_all_data(data_dict):
     if not data_dict:
         return "暂无任何数据"

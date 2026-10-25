@@ -40,27 +40,20 @@ def main_menu():
             else:
                 print("该键不存在")
         elif choice == "2":
-            key = input("输入要修改的key：").strip()
-            if not key:
-                print("错误：key不能为空！")
-            elif key not in data:
-                print(f"错误：key【{key}】不存在，无法修改")
-            else:
+                key = input("输入要修改的key：").strip()
                 new_val = input("输入新的值：").strip()
-                if not new_val:
-                    print("错误：值不能为空！")
-                else:
-                    data[key] = new_val
-                    print("修改成功！")
+                ok, msg = modify_info(data, key, new_val)
+                print(msg)
+
+
         elif choice == "3":
+
             key = input("输入要删除的key：").strip()
-            if not key:
-                print("错误：key不能为空！")
-            elif key not in data:
-                print(f"错误：key【{key}】不存在，无法删除")
-            else:
-                del data[key]
-                print("删除成功！")
+
+            ok, msg = delete_info(data, key)
+
+            print(msg)
+
         elif choice == "4":
             ok, msg = save_json(data, "data.json")
             print(msg)

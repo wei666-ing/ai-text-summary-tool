@@ -44,6 +44,10 @@ def get_value(data_dict, key):
 
 def modify_info(data_dict, key, new_value):
     """修改已有键的值"""
+    if not key:
+        return False, "错误：key不能为空！"
+    if not new_value:
+        return False, "错误：值不能为空！"
     if key in data_dict:
         data_dict[key] = new_value
         return True, "修改成功"
@@ -60,7 +64,9 @@ def add_info(data_dict, key, value):
 
 
 def delete_info(data_dict, key):
-    """删除指定的键值对"""
+    """删除指定key"""
+    if not key:
+        return False, "错误：key不能为空！"
     if key in data_dict:
         del data_dict[key]
         return True, "删除成功"

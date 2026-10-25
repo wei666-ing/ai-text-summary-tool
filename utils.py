@@ -192,3 +192,9 @@ def backup_file(file_path, **kwargs):
         return True, f"备份成功，副本：{backup_path}"
     except Exception as e:
         return False, f"备份失败：{e}"
+    
+def find_data(data_dict, keyword):
+    """按关键词搜索，返回所有value包含关键词的条目（字典推导式）"""
+    if not keyword:
+        return {}
+    return {k: v for k, v in data_dict.items() if keyword in v}

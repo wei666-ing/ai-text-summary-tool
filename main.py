@@ -3,7 +3,7 @@
 # 工具函数都放在 utils.py，这里用 import 导入
 # =========================================
 import os
-from utils import save_json, load_json, add_info, modify_info, delete_info, show_all_data, list_all_files, batch_add
+from utils import save_json, load_json, add_info, modify_info, delete_info, show_all_data, list_all_files, batch_add, find_data
 
 # 不管程序从哪里运行，都能定位到项目目录和data.json的绝对路径
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -29,10 +29,11 @@ def main_menu():
         print("7. 查看当前工作目录")
         print("8. 查看目录下全部文件")
         print("9. 批量添加多条数据")
+        print("10. 按关键词搜索数据")
         print("0. 退出程序")
         choice = input("请输入功能编号：").strip()
-        if choice not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
-            print("请输入0~9之间有效的功能编号！")
+        if choice not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9","10"]:
+            print("请输入0~10之间有效的功能编号！")
             continue
 
         if choice == "0":
@@ -83,6 +84,14 @@ def main_menu():
                 print("✅ 添加成功：", succ)
             if fail:
                 print("❌ 添加失败：", fail)
+        elif choice == "10":
+            kw = input("输入搜索关键词：").strip()
+            result = find_data(data, kw)
+            if result:
+                print("🔍 搜索到以下记录：")
+                print(show_all_data(result))
+            else:
+                print("没有找到包含该关键词的记录")
         else:
             print("输入无效，请重新选择！")
 

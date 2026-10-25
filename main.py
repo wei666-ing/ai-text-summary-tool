@@ -5,11 +5,15 @@
 import os
 from utils import save_json, load_json, add_info, modify_info, delete_info, show_all_data, list_all_files
 
+# 不管程序从哪里运行，都能定位到项目目录和data.json的绝对路径
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, "data.json")
+
 
 def main_menu():
     """主菜单：整合全部功能"""
     # 启动时加载数据
-    status, data = load_json("data.json")
+    status, data = load_json(DATA_FILE)
 
     if not status:
         data = {}
@@ -50,7 +54,7 @@ def main_menu():
             print(msg)
 
         elif choice == "4":
-            ok, msg = save_json(data, "data.json")
+            ok, msg = save_json(data, DATA_FILE)
             print(msg)
         elif choice == "5":
             key = input("输入新增key：").strip()

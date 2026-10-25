@@ -1,6 +1,7 @@
 # =========================================
 # 数据管理小工具：读取/查询/修改/新增/删除/保存
 # =========================================
+import os
 import json
 def read_file_to_dict(file_path):
     """读取 key=value 格式的文本文件，返回字典"""
@@ -100,13 +101,16 @@ def save_json(data_dict, file_path):
 
 def load_json(file_path):
     """读取json文件，返回字典"""
+    # ↓↓↓ os.path.exists 就在这里 ↓↓↓
+    if not os.path.exists(file_path):
+        print("提示：数据文件不存在，已自动新建空白数据")
+        return True, {}
+    # ↑↑↑ os.path.exists 就在这里 ↑↑↑
+
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
         return True, data
-    except FileNotFoundError:
-        print("提示：数据文件不存在，已自动新建空白数据")
-        return True, {}
     except json.JSONDecodeError:
         print("警告：文件JSON格式损坏，使用空白数据")
         return True, {}
@@ -139,9 +143,10 @@ def main_menu():
         print("4. 保存数据到文件")
         print("5. 添加新数据")
         print("6. 展示全部数据")
+        print("7. 查看当前工作目录")
         print("0. 退出程序")
         choice = input("请输入功能编号：").strip()
-        valid_choices = ["0", "1", "2", "3", "4", "5", "6"]
+        valid_choices = ["0","1","2","3","4","5","6","7"]
         if choice not in valid_choices:
             print("请输入0~6之间有效的功能编号！")
             continue
@@ -150,55 +155,53 @@ def main_menu():
             print("程序退出")
             break
         elif choice == "1":
-            key = input("输入要查询的key：")
+            key = input("输入要查询的key：").strip()
             if key in data:
                 print(f"{key}: {data[key]}")
             else:
                 print("该键不存在")
         elif choice == "2":
-                key = input("输入要修改的key：").strip()
-                if not key:
-                    print("错误：key不能为空！")
-                elif key not in data:
-                    print(f"错误：key【{key}】不存在，无法修改")
+            key = input("输入要修改的key：").strip()
+            if not key:
+                print("错误：key不能为空！")
+            elif key not in data:
+                print(f"错误：key【{key}】不存在，无法修改")
+            else:
+                new_val = input("输入新的值：").strip()
+                if not new_val:
+                    print("错误：值不能为空！")
                 else:
-                    new_val = input("输入新的值：").strip()
-                    if not new_val:
-                        print("错误：值不能为空！")
-                    else:
-                        # 调用修改函数
-                        data[key] = new_val
-                        print("修改成功！")
+                    data[key] = new_val
+                    print("修改成功！")
         elif choice == "3":
-                        key = input("输入要删除的key：").strip()
-                        if not key:
-                            print("错误：key不能为空！")
-                        elif key not in data:
-                            print(f"错误：key【{key}】不存在，无法删除")
-                        else:
-                            del data[key]
-                            print("删除成功！")
-
+            key = input("输入要删除的key：").strip()
+            if not key:
+                print("错误：key不能为空！")
+            elif key not in data:
+                print(f"错误：key【{key}】不存在，无法删除")
+            else:
+                del data[key]
+                print("删除成功！")
         elif choice == "4":
             ok, msg = save_json(data, "data.json")
             print(msg)
         elif choice == "5":
             key = input("输入新增key：").strip()
             val = input("输入新增value：").strip()
-            # 校验1：判断是否为空
             if not key or not val:
                 print("错误：key 和 value 都不能为空！")
-            # 校验2：判断key是否已经在字典里
             elif key in data:
                 print(f"错误：key【{key}】已经存在，不能重复添加！")
             else:
                 ok, msg = add_info(data, key, val)
                 print(msg)
-
         elif choice == "6":
             print(show_all_data(data))
+        elif choice == "7":
+            print("当前工作目录：", os.getcwd())
         else:
             print("输入无效，请重新选择！")
+
 
 
 # 程序入口，只有直接运行这个py文件才会执行

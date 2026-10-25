@@ -59,13 +59,8 @@ def main_menu():
         elif choice == "5":
             key = input("输入新增key：").strip()
             val = input("输入新增value：").strip()
-            if not key or not val:
-                print("错误：key 和 value 都不能为空！")
-            elif key in data:
-                print(f"错误：key【{key}】已经存在，不能重复添加！")
-            else:
-                ok, msg = add_info(data, key, val)
-                print(msg)
+            ok, msg = add_info(data, key, val)
+            print(msg)
         elif choice == "6":
             print(show_all_data(data))
         elif choice == "7":

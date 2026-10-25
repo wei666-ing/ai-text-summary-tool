@@ -56,7 +56,11 @@ def modify_info(data_dict, key, new_value):
 
 
 def add_info(data_dict, key, value):
-    """新增一条键值对（键不能重复）"""
+    """新增一条键值对（key/value不能为空，key不能重复）"""
+    if not key:
+        return False, "错误：key不能为空！"
+    if not value:
+        return False, "错误：值不能为空！"
     if key in data_dict:
         return False, "键已经存在，不能重复添加"
     data_dict[key] = value

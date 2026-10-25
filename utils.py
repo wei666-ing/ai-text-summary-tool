@@ -5,7 +5,7 @@
 # =========================================
 import os
 import json
-
+import shutil
 
 def read_file_to_dict(file_path):
     """读取 key=value 格式的文本文件，返回字典"""
@@ -102,11 +102,17 @@ def load_dict_from_file(file_path):
 
 
 def save_json(data_dict, file_path):
-    """把字典保存为json文件"""
+    """把字典保存为json文件，保存前自动备份"""
+    # 先备份旧文件
+    if os.path.exists(file_path):
+        ok, msg = backup_file(file_path)
+        if not ok:
+            print(msg)
+
     try:
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data_dict, f, ensure_ascii=False, indent=2)
-        return True, "json保存成功"
+        return True, "json保存成功（已自动备份）"
     except Exception as e:
         return False, f"保存失败：{e}"
 
@@ -147,3 +153,13 @@ def list_all_files(folder_path):
     except Exception as e:
         return False, f"读取目录失败：{e}"
 
+def backup_file(file_path):
+    """备份文件，生成 .bak 副本"""
+    if not os.path.exists(file_path):
+        return False, "源文件不存在，无需备份"
+    try:
+        backup_path = file_path + ".bak"
+        shutil.copy(file_path, backup_path)
+        return True, f"备份成功，副本：{backup_path}"
+    except Exception as e:
+        return False, f"备份失败：{e}"

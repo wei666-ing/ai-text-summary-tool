@@ -6,6 +6,8 @@
 import os
 import json
 import shutil
+import csv
+
 
 def read_file_to_dict(file_path):
     """读取 key=value 格式的文本文件，返回字典"""
@@ -307,3 +309,46 @@ class DataManager:
             return True, os.listdir(folder_path)
         except Exception as e:
             return False, f"读取目录失败：{e}"
+
+class CSVDataManager(DataManager):
+    """CSV格式数据管理器，继承自DataManager，支持CSV导入导出"""
+
+    def export_csv(self, csv_path):
+        """导出数据到CSV文件"""
+        try:
+            with open(csv_path, "w", encoding="utf-8", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(["key", "value"])
+                for k, v in self.data.items():
+                    writer.writerow([k, v])
+            return True, f"CSV导出成功，文件：{csv_path}"
+        except Exception as e:
+            return False, f"CSV导出失败：{e}"
+
+    def import_csv(self, csv_path, overwrite=False):
+        """从CSV导入数据
+        overwrite=True 覆盖原有数据；False则合并（重复key跳过）
+        """
+        if not os.path.exists(csv_path):
+            return False, "CSV文件不存在"
+        try:
+            new_data = {}
+            with open(csv_path, "r", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                next(reader, None)  # 跳过表头
+                for row in reader:
+                    if len(row) >= 2:
+                        k, v = row[0], row[1]
+                        new_data[k] = v
+            if overwrite:
+                self.data = new_data
+                return True, f"导入成功，已覆盖全部数据，共{len(new_data)}条"
+            else:
+                count = 0
+                for k, v in new_data.items():
+                    if k not in self.data:
+                        self.data[k] = v
+                        count += 1
+                return True, f"导入成功，合并新增{count}条，重复key已跳过"
+        except Exception as e:
+            return False, f"CSV导入失败：{e}"

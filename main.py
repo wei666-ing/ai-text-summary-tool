@@ -3,7 +3,7 @@
 # 数据管理全部封装在 utils.py 的 DataManager 类里
 # =========================================
 import os
-from utils import DataManager
+from utils import CSVDataManager
 
 # 不管程序从哪里运行，都能定位到项目目录和data.json的绝对路径
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +13,7 @@ DATA_FILE = os.path.join(BASE_DIR, "data.json")
 def main_menu():
     """主菜单：整合全部功能"""
     # 创建数据管理器对象，自动加载数据
-    dm = DataManager(DATA_FILE)
+    dm = CSVDataManager(DATA_FILE)
 
     while True:
         print("\n===== 数据管理菜单 =====")
@@ -27,9 +27,11 @@ def main_menu():
         print("8. 查看目录下全部文件")
         print("9. 批量添加多条数据")
         print("10. 按关键词搜索数据")
+        print("11. 导出数据为CSV文件")
+        print("12. 从CSV文件导入数据")
         print("0. 退出程序")
         choice = input("请输入功能编号：").strip()
-        if choice not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
+        if choice not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10","11","12"]:
             print("请输入0~10之间有效的功能编号！")
             continue
 
@@ -90,6 +92,17 @@ def main_menu():
                     print(f"{k}: {v}")
             else:
                 print("没有找到包含该关键词的记录")
+        elif choice == "11":
+            csv_path = os.path.join(os.path.dirname(DATA_FILE), "data_export.csv")
+            ok, msg = dm.export_csv(csv_path)
+            print(msg)
+        elif choice == "12":
+            csv_path = os.path.join(os.path.dirname(DATA_FILE), "data_export.csv")
+            mode = input("选择导入模式：1=合并(重复跳过) 2=覆盖全部：").strip()
+            overwrite = (mode == "2")
+            ok, msg = dm.import_csv(csv_path, overwrite=overwrite)
+            print(msg)
+
         else:
             print("输入无效，请重新选择！")
 

@@ -1,126 +1,130 @@
+"""utils 工具函数与 DataManager 类的单元测试（pytest 版）
+
+运行方式：python -m pytest -v
+特点：
+- pytest 自动发现 test_ 开头的函数，不需要手动调用
+- tmp_path 是 pytest 内置 fixture：每个测试自动建独立临时目录、自动清理
+- @pytest.mark.parametrize 一组参数自动跑多次
+"""
 import os
-import json
+import pytest
+
 from utils import (
     add_info, modify_info, delete_info,
-    save_json, load_json, show_all_data,
-    backup_file
+    save_json, load_json, backup_file,
+    DataManager,
 )
+
+
+# ===== 纯逻辑函数测试 =====
 
 def test_add_info():
     data = {}
     # 正常添加
     ok, msg = add_info(data, "name", "小明")
-    assert ok == True
+    assert ok is True
     assert data["name"] == "小明"
     # 重复key
     ok, msg = add_info(data, "name", "小红")
-    assert ok == False
+    assert ok is False
     # 空key
     ok, msg = add_info(data, "", "测试")
-    assert ok == False
-    print("✅ add_info 测试通过")
+    assert ok is False
+
 
 def test_modify_info():
     data = {"age": 20}
-    # 正常修改
     ok, msg = modify_info(data, "age", 25)
-    assert ok == True
+    assert ok is True
     assert data["age"] == 25
-    # 不存在的key
     ok, msg = modify_info(data, "height", 180)
-    assert ok == False
-    # 空key
+    assert ok is False
     ok, msg = modify_info(data, "", 100)
-    assert ok == False
-    print("✅ modify_info 测试通过")
+    assert ok is False
+
 
 def test_delete_info():
     data = {"city": "广州"}
-    # 正常删除
     ok, msg = delete_info(data, "city")
-    assert ok == True
+    assert ok is True
     assert "city" not in data
-    # 删除不存在的key
     ok, msg = delete_info(data, "abc")
-    assert ok == False
-    # 空key
+    assert ok is False
     ok, msg = delete_info(data, "")
-    assert ok == False
-    print("✅ delete_info 测试通过")
+    assert ok is False
 
-def test_json_save_load():
-    test_file = "test_temp.json"
+
+# ===== 文件相关测试（tmp_path：临时目录，测完自动清理）=====
+
+def test_json_save_load(tmp_path):
+    test_file = str(tmp_path / "test_temp.json")
     test_data = {"a": 1, "b": "测试"}
-    # 保存
     ok, msg = save_json(test_data, test_file)
-    assert ok == True
+    assert ok is True
     assert os.path.exists(test_file)
-    # 读取
     ok, data = load_json(test_file)
-    assert ok == True
+    assert ok is True
     assert data["a"] == 1
     assert data["b"] == "测试"
-    # 清理
-    os.remove(test_file)
-    print("✅ json 保存读取 测试通过")
 
-def test_backup_file():
-    test_file = "test_backup.txt"
+
+def test_backup_file(tmp_path):
+    test_file = str(tmp_path / "test_backup.txt")
     with open(test_file, "w", encoding="utf-8") as f:
         f.write("测试内容")
-    # 正常备份
+    # 默认后缀
     ok, msg = backup_file(test_file)
-    assert ok == True
+    assert ok is True
     assert os.path.exists(test_file + ".bak")
-    # 清理
-    os.remove(test_file)
-    os.remove(test_file + ".bak")
-    print("✅ backup_file 测试通过")
+    # 自定义后缀（**kwargs）
+    ok, msg = backup_file(test_file, suffix=".backup")
+    assert ok is True
+    assert os.path.exists(test_file + ".backup")
 
-def test_datamanager():
-    from utils import DataManager
-    test_file = "test_dm.json"
+
+# ===== DataManager 类测试 =====
+
+def test_datamanager_crud(tmp_path):
+    test_file = str(tmp_path / "test_dm.json")
     dm = DataManager(test_file)
-    # 添加
     ok, msg = dm.add("name", "小明")
-    assert ok == True
-    # 重复key拦截
-    ok, msg = dm.add("name", "小红")
-    assert ok == False
-    # 修改
+    assert ok is True
+    ok, msg = dm.add("name", "小红")   # 重复拦截
+    assert ok is False
     ok, msg = dm.modify("name", "小李")
-    assert ok == True
+    assert ok is True
     assert dm.data["name"] == "小李"
-    # 查询
     assert dm.query("name") == "小李"
-    # 搜索（字典推导式）
     result = dm.search("李")
     assert "name" in result
-    # 展示
     assert "name: 小李" in dm.show_all()
-    # 删除
     ok, msg = dm.delete("name")
-    assert ok == True
+    assert ok is True
     assert "name" not in dm.data
-    # 批量添加（*args）
+    ok, msg = dm.save()
+    assert ok is True
+    assert os.path.exists(test_file)
+
+
+def test_datamanager_batch_add(tmp_path):
+    dm = DataManager(str(tmp_path / "batch.json"))
     succ, fail = dm.batch_add("a", "1", "b", "2")
     assert len(succ) == 2
-    # 保存 + 自动备份
-    ok, msg = dm.save()
-    assert ok == True
-    assert os.path.exists(test_file)
-    # 清理
-    os.remove(test_file)
-    if os.path.exists(test_file + ".bak"):
-        os.remove(test_file + ".bak")
-    print("✅ DataManager 测试通过")
+    assert len(fail) == 0
+    # 奇数参数报错
+    succ, fail = dm.batch_add("a", "1", "b")
+    assert len(succ) == 0
+    assert len(fail) == 1
 
-if __name__ == "__main__":
-    print("开始运行工具函数测试...\n")
-    test_add_info()
-    test_modify_info()
-    test_delete_info()
-    test_json_save_load()
-    test_backup_file()
-    test_datamanager()
-    print("\n🎉 全部测试通过！")
+
+# ===== 参数化测试（pytest特色：一组参数自动跑多次）=====
+
+@pytest.mark.parametrize("key,value,expected", [
+    ("", "v", False),      # 空key → 失败
+    ("k", "", False),      # 空value → 失败
+    ("k", "v", True),      # 正常 → 成功
+])
+def test_add_parametrized(tmp_path, key, value, expected):
+    dm = DataManager(str(tmp_path / "param.json"))
+    ok, msg = dm.add(key, value)
+    assert ok is expected

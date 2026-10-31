@@ -3,10 +3,23 @@
 # 数据管理小工具的所有工具函数都放这里
 # main.py 通过 import 导入这些函数
 # =========================================
+import logging
 import os
 import json
 import shutil
 import csv
+
+# 日志配置：同时输出到控制台和 app.log 文件（app.log 固定在项目目录）
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(os.path.join(_BASE_DIR, "app.log"), encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 def read_file_to_dict(file_path):
@@ -29,10 +42,10 @@ def read_file_to_dict(file_path):
                 data_dict[key] = value
         return data_dict
     except FileNotFoundError:
-        print("文件不存在！")
+        logger.warning("文件不存在！")
         return None
     except ValueError:
-        print("该行格式错误，需要 key=value")
+        logger.warning("该行格式错误，需要 key=value")
         return None
 
 
@@ -135,7 +148,7 @@ def save_json(data_dict, file_path):
     if os.path.exists(file_path):
         ok, msg = backup_file(file_path)
         if not ok:
-            print(msg)
+            logger.warning(msg)
 
     try:
         with open(file_path, "w", encoding="utf-8") as f:
@@ -149,7 +162,7 @@ def load_json(file_path):
     """读取json文件，返回字典"""
     # 先判断文件是否存在
     if not os.path.exists(file_path):
-        print("提示：数据文件不存在，已自动新建空白数据")
+        logger.warning("提示：数据文件不存在，已自动新建空白数据")
         return True, {}
 
     try:
@@ -157,10 +170,10 @@ def load_json(file_path):
             data = json.load(f)
         return True, data
     except json.JSONDecodeError:
-        print("警告：文件JSON格式损坏，使用空白数据")
+        logger.warning("警告：文件JSON格式损坏，使用空白数据")
         return True, {}
     except Exception as e:
-        print(f"读取失败：{e}")
+        logger.error(f"读取失败：{e}")
         return False, {}
 
 
@@ -219,15 +232,15 @@ class DataManager:
     def _load(self):
         """内部方法：加载文件（前面加_表示"内部用，不对外"）"""
         if not os.path.exists(self.file_path):
-            print("提示：数据文件不存在，已自动新建空白数据")
+            logger.warning("提示：数据文件不存在，已自动新建空白数据")
             return
         try:
             with open(self.file_path, "r", encoding="utf-8") as f:
                 self.data = json.load(f)
         except json.JSONDecodeError:
-            print("警告：文件JSON格式损坏，使用空白数据")
+            logger.warning("警告：文件JSON格式损坏，使用空白数据")
         except Exception as e:
-            print(f"读取失败：{e}")
+            logger.error(f"读取失败：{e}")
 
     def add(self, key, value):
         """新增一条键值对（key/value不能为空，key不能重复）"""

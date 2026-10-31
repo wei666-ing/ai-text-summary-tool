@@ -1,0 +1,6 @@
+{
+    "data_file": "data.json",
+    "backup_suffix": ".bak",
+    "log_level": "INFO",
+    "csv_export": "data_export.csv"
+}

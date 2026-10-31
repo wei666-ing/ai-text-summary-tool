@@ -1,19 +1,26 @@
 # =========================================
-# 数据管理小工具：主程序（面向对象版本 + logging日志）
+# 数据管理小工具：主程序（面向对象版本 + logging日志 + 配置文件）
 # 数据管理全部封装在 utils.py 的 DataManager 类里
+# 可配置项见 config.json：数据文件名、备份后缀、日志级别、CSV导出文件名
 # =========================================
 import os
-from utils import CSVDataManager, logger
+from utils import CSVDataManager, logger, load_config
 
-# 不管程序从哪里运行，都能定位到项目目录和data.json的绝对路径
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_FILE = os.path.join(BASE_DIR, "data.json")
+
+# 读取配置（文件不存在或损坏时自动用默认值，不会崩）
+config = load_config(os.path.join(BASE_DIR, "config.json"))
+DATA_FILE = os.path.join(BASE_DIR, config["data_file"])
+CSV_FILE = os.path.join(BASE_DIR, config["csv_export"])
+
+# 用配置文件里的级别控制日志输出（改成 WARNING 就只显示警告和错误）
+logger.setLevel(config["log_level"])
 
 
 def main_menu():
     """主菜单：整合全部功能"""
     # 创建数据管理器对象，自动加载数据
-    dm = CSVDataManager(DATA_FILE)
+    dm = CSVDataManager(DATA_FILE, backup_suffix=config["backup_suffix"])
 
     while True:
         print("\n===== 数据管理菜单 =====")
@@ -93,14 +100,12 @@ def main_menu():
             else:
                 logger.warning("没有找到包含该关键词的记录")
         elif choice == "11":
-            csv_path = os.path.join(os.path.dirname(DATA_FILE), "data_export.csv")
-            ok, msg = dm.export_csv(csv_path)
+            ok, msg = dm.export_csv(CSV_FILE)
             logger.info(msg)
         elif choice == "12":
-            csv_path = os.path.join(os.path.dirname(DATA_FILE), "data_export.csv")
             mode = input("选择导入模式：1=合并(重复跳过) 2=覆盖全部：").strip()
             overwrite = (mode == "2")
-            ok, msg = dm.import_csv(csv_path, overwrite=overwrite)
+            ok, msg = dm.import_csv(CSV_FILE, overwrite=overwrite)
             logger.info(msg)
         else:
             logger.warning("输入无效，请重新选择！")

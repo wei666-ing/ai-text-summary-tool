@@ -21,6 +21,30 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ===== 默认配置（配置文件缺失/损坏时的兜底） =====
+DEFAULT_CONFIG = {
+    "data_file": "data.json",
+    "backup_suffix": ".bak",
+    "log_level": "INFO",
+    "csv_export": "data_export.csv"
+}
+
+
+def load_config(config_path="config.json"):
+    """读取配置文件；文件不存在或解析失败时返回默认配置"""
+    if not os.path.exists(config_path):
+        logger.warning("配置文件不存在，使用默认配置")
+        return DEFAULT_CONFIG.copy()
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        merged = DEFAULT_CONFIG.copy()
+        merged.update(config)   # 配置文件里缺失的键用默认值补齐
+        return merged
+    except Exception as e:
+        logger.error(f"配置文件解析失败：{e}，使用默认配置")
+        return DEFAULT_CONFIG.copy()
+
 
 def read_file_to_dict(file_path):
     """读取 key=value 格式的文本文件，返回字典"""
@@ -224,10 +248,11 @@ class DataManager:
         dm.save()                        # 保存到文件
     """
 
-    def __init__(self, file_path):
-        self.file_path = file_path   # 数据文件路径，存在对象身上
-        self.data = {}               # 内存中的数据
-        self._load()                 # 初始化时自动加载
+    def __init__(self, file_path, backup_suffix=".bak"):
+        self.file_path = file_path          # 数据文件路径，存在对象身上
+        self.backup_suffix = backup_suffix  # 备份后缀，默认.bak
+        self.data = {}                      # 内存中的数据
+        self._load()                        # 初始化时自动加载
 
     def _load(self):
         """内部方法：加载文件（前面加_表示"内部用，不对外"）"""
@@ -307,7 +332,7 @@ class DataManager:
     def save(self):
         """保存到文件，保存前自动备份"""
         if os.path.exists(self.file_path):
-            backup_path = self.file_path + ".bak"
+            backup_path = self.file_path + self.backup_suffix
             shutil.copy(self.file_path, backup_path)
         try:
             with open(self.file_path, "w", encoding="utf-8") as f:

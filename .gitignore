@@ -1,3 +1,6 @@
 main_backup.py
 __pycache__/
 .pytest_cache/
+build/
+dist/
+*.spec

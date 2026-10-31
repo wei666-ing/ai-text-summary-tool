@@ -4,9 +4,19 @@
 # 可配置项见 config.json：数据文件名、备份后缀、日志级别、CSV导出文件名
 # =========================================
 import os
+import sys
 from utils import CSVDataManager, logger, load_config
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def _get_base_dir():
+    """程序基目录：源码运行=文件所在目录；打包成exe=exe所在目录"""
+    if getattr(sys, "frozen", False):
+        # PyInstaller打包后：数据文件要放在exe旁边
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+BASE_DIR = _get_base_dir()
 
 # 读取配置（文件不存在或损坏时自动用默认值，不会崩）
 config = load_config(os.path.join(BASE_DIR, "config.json"))

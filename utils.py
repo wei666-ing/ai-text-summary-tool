@@ -8,9 +8,18 @@ import os
 import json
 import shutil
 import csv
+import sys
 
-# 日志配置：同时输出到控制台和 app.log 文件（app.log 固定在项目目录）
-_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def _get_base_dir():
+    """程序基目录：源码运行=文件所在目录；打包成exe=exe所在目录"""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+# 日志配置：同时输出到控制台和 app.log 文件（app.log 固定在程序目录）
+_BASE_DIR = _get_base_dir()
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
